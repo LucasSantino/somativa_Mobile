@@ -22,15 +22,17 @@ class Home extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
             const SizedBox(height: 10),
 
             Text(
               "Escolha uma opção para começar:",
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.white.withOpacity(0.8),
+                color: AppColors.white,
               ),
             ),
+
             const SizedBox(height: 30),
 
             Expanded(
@@ -45,23 +47,12 @@ class Home extends StatelessWidget {
                     context: context,
                     route: "/cardapio",
                   ),
+
                   _buildHomeCard(
                     icon: Icons.shopping_cart,
                     title: "Pedidos",
                     context: context,
-                    route: "/pedidos",
-                  ),
-                  _buildHomeCard(
-                    icon: Icons.person,
-                    title: "Perfil",
-                    context: context,
-                    route: "/perfil",
-                  ),
-                  _buildHomeCard(
-                    icon: Icons.settings,
-                    title: "Configurações",
-                    context: context,
-                    route: "/config",
+                    route: "/carrinho", // 🔥 atualizado
                   ),
                 ],
               ),
@@ -72,7 +63,6 @@ class Home extends StatelessWidget {
     );
   }
 
-  /// Widget reutilizável para cada card
   Widget _buildHomeCard({
     required IconData icon,
     required String title,

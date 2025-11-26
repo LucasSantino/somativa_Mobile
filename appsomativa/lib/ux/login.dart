@@ -19,7 +19,7 @@ class Login extends StatelessWidget {
             Center(
               child: Image.asset(
                 "assets/images/logo.png",
-                width: 140, // pode ajustar
+                width: 140,
                 height: 140,
               ),
             ),
@@ -67,13 +67,17 @@ class Login extends StatelessWidget {
 
             const SizedBox(height: 30),
 
+            // BOTÃO ENTRAR → HOME
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/home');
+              },
               child: const Text("Entrar"),
             ),
 
             const SizedBox(height: 15),
 
+            // BOTÃO CRIAR CONTA
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/cadastro');
