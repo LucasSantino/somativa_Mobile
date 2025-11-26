@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '_core/theme/app_theme.dart';
 import 'ux/login.dart';
+import 'ux/cadastro.dart';
 
 void main() {
   runApp(const MangeEatsApp());
@@ -14,8 +15,12 @@ class MangeEatsApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mange Eats',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.theme, // tema central do app
-      home: const Login(), // primeira tela
+      theme: AppTheme.theme,
+      initialRoute: '/login',
+      routes: {
+        '/login': (_) => const Login(),
+        '/cadastro': (_) => const Cadastro(),
+      },
     );
   }
 }

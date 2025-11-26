@@ -8,38 +8,59 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: "Login"),
+      appBar: const CustomAppBar(title: "Bem-vindo ao Mange Eats"),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+            // LOGO CENTRALIZADA
+            Center(
+              child: Image.asset(
+                "assets/images/logo.png",
+                width: 140, // pode ajustar
+                height: 140,
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // CAMPO EMAIL
             TextField(
               style: const TextStyle(color: AppColors.white),
               decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.email, color: AppColors.white),
                 labelText: "E-mail",
                 labelStyle: const TextStyle(color: AppColors.white),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.white),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.white),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.primary),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
 
+            // CAMPO SENHA
             TextField(
               obscureText: true,
               style: const TextStyle(color: AppColors.white),
               decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.lock, color: AppColors.white),
                 labelText: "Senha",
                 labelStyle: const TextStyle(color: AppColors.white),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.white),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.white),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.primary),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
@@ -54,12 +75,14 @@ class Login extends StatelessWidget {
             const SizedBox(height: 15),
 
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/cadastro');
+              },
               child: const Text(
                 "Criar Conta",
                 style: TextStyle(color: AppColors.primary),
               ),
-            )
+            ),
           ],
         ),
       ),

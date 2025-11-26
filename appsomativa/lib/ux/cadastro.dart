@@ -11,58 +11,82 @@ class Cadastro extends StatelessWidget {
       appBar: const CustomAppBar(title: "Criar Conta"),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
+        child: ListView(
           children: [
             TextField(
               style: const TextStyle(color: AppColors.white),
-              decoration: const InputDecoration(
-                labelText: "Nome",
-                labelStyle: TextStyle(color: AppColors.white),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.person, color: AppColors.white),
+                labelText: "Nome Completo",
+                labelStyle: const TextStyle(color: AppColors.white),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.white),
+                  borderSide: const BorderSide(color: AppColors.white),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.primary),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
 
             TextField(
               style: const TextStyle(color: AppColors.white),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.email, color: AppColors.white),
                 labelText: "E-mail",
-                labelStyle: TextStyle(color: AppColors.white),
+                labelStyle: const TextStyle(color: AppColors.white),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.white),
+                  borderSide: const BorderSide(color: AppColors.white),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.primary),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
 
             TextField(
               obscureText: true,
               style: const TextStyle(color: AppColors.white),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.lock, color: AppColors.white),
                 labelText: "Senha",
-                labelStyle: TextStyle(color: AppColors.white),
+                labelStyle: const TextStyle(color: AppColors.white),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.white),
+                  borderSide: const BorderSide(color: AppColors.white),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.primary),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
+
             const SizedBox(height: 30),
 
             ElevatedButton(
               onPressed: () {},
               child: const Text("Cadastrar"),
             ),
+
+            const SizedBox(height: 15),
+
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/login');
+              },
+              child: const Text(
+                "Já tenho conta",
+                style: TextStyle(color: AppColors.primary),
+              ),
+            )
           ],
         ),
       ),
