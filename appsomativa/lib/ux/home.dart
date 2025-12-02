@@ -53,9 +53,26 @@ class Home extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: ListView.builder(
-            itemCount: cardapioItems.length,
+            itemCount:
+                cardapioItems.length + 1, // +1 para o texto de boas-vindas
             itemBuilder: (context, index) {
-              final item = cardapioItems[index];
+              if (index == 0) {
+                // TEXTO DE BOAS-VINDAS
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Text(
+                    "Bem-vindo(a) ao MangeEats!",
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              }
+
+              // CARDS DO CARDÁPIO
+              final item = cardapioItems[index - 1];
 
               return Card(
                 color: const Color.fromARGB(75, 15, 15, 15),
@@ -70,7 +87,6 @@ class Home extends StatelessWidget {
                     children: [
                       Icon(item["icone"], color: AppColors.primary, size: 35),
                       const SizedBox(width: 20),
-
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,9 +99,7 @@ class Home extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-
                             const SizedBox(height: 6),
-
                             Text(
                               item["descricao"],
                               style: TextStyle(
@@ -93,9 +107,7 @@ class Home extends StatelessWidget {
                                 color: AppColors.white.withOpacity(0.7),
                               ),
                             ),
-
                             const SizedBox(height: 8),
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -107,20 +119,17 @@ class Home extends StatelessWidget {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-
                                 ElevatedButton.icon(
                                   onPressed: () {
                                     final cart = Provider.of<CartProvider>(
                                       context,
                                       listen: false,
                                     );
-
                                     cart.addItem({
                                       "nome": item["nome"],
                                       "preco": item["preco"],
                                       "quantidade": 1,
                                     });
-
                                     Navigator.pushNamed(context, "/carrinho");
                                   },
                                   icon: Icon(
