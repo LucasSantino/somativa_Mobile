@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000/';
+  // Use 10.0.2.2 no Android Emulator para acessar o localhost
+  static const String baseUrl = 'http://10.0.2.2:8000/';
 
   // Cadastro de usuário
   static Future<Map<String, dynamic>> cadastro(String username, String email, String password) async {
@@ -59,7 +60,7 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  // Listar pedidos de um usuário (precisamos criar este endpoint no backend se ainda não existir)
+  // Listar pedidos de um usuário
   static Future<List<dynamic>> listarPedidos(int userId) async {
     final response = await http.get(Uri.parse('${baseUrl}pedidos/usuario/$userId/'));
     return jsonDecode(response.body);
