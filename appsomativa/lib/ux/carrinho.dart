@@ -1,6 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
 import '../_core/widgets/custom_appbar.dart';
+import '../_core/widgets/custom_bottom_nav.dart';
 import '../_core/constants/app_colors.dart';
+import '../_core/providers/cart_provider.dart';
 
 class Carrinho extends StatefulWidget {
   const Carrinho({super.key});
@@ -12,22 +18,53 @@ class Carrinho extends StatefulWidget {
 class _CarrinhoState extends State<Carrinho> {
   final TextEditingController cepController = TextEditingController();
 
-  // Dados mockados por enquanto
-  List<Map<String, dynamic>> itens = [
-    {"nome": "Hambúrguer Artesanal", "quantidade": 1, "preco": 25.00},
-    {"nome": "Pizza Calabresa", "quantidade": 2, "preco": 40.00},
-  ];
+  Future<void> buscarCep(BuildContext context) async {
+    String cep = cepController.text.trim().replaceAll("-", "");
 
-  double get total {
-    double valor = 0;
-    for (var item in itens) {
-      valor += item["preco"] * item["quantidade"];
+    if (cep.length != 8) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("CEP inválido!")));
+      return;
     }
-    return valor;
+
+    final url = Uri.parse("https://viacep.com.br/ws/$cep/json/");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data.containsKey("erro")) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("CEP não encontrado")));
+          return;
+        }
+
+        String endereco =
+            "${data["logradouro"]}, ${data["bairro"]} - ${data["localidade"]}/${data["uf"]}";
+
+        final cart = Provider.of<CartProvider>(context, listen: false);
+        cart.setEndereco(endereco);
+        cart.calcularTaxaEntrega();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Endereço encontrado com sucesso!")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Erro ao buscar o CEP")));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cart = Provider.of<CartProvider>(context);
+
     return Scaffold(
       appBar: const CustomAppBar(title: "Carrinho"),
       body: Padding(
@@ -36,9 +73,9 @@ class _CarrinhoState extends State<Carrinho> {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: itens.length,
+                itemCount: cart.items.length,
                 itemBuilder: (context, index) {
-                  final item = itens[index];
+                  final item = cart.items[index];
                   return Container(
                     margin: const EdgeInsets.only(bottom: 15),
                     padding: const EdgeInsets.all(15),
@@ -48,9 +85,9 @@ class _CarrinhoState extends State<Carrinho> {
                       border: Border.all(color: AppColors.primary),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Nome
+                        // Nome do item
                         Expanded(
                           child: Text(
                             item["nome"],
@@ -61,57 +98,76 @@ class _CarrinhoState extends State<Carrinho> {
                             ),
                           ),
                         ),
-
-                        // Quantidade
-                        Row(
+                        const SizedBox(width: 10),
+                        Column(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline,
-                                  color: AppColors.primary),
-                              onPressed: () {
-                                setState(() {
-                                  if (item["quantidade"] > 1) {
-                                    item["quantidade"]--;
-                                  }
-                                });
-                              },
+                            // Controles de quantidade
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.remove_circle_outline,
+                                    color: AppColors.primary,
+                                  ),
+                                  onPressed: () {
+                                    cart.decreaseQuantity(index);
+                                  },
+                                ),
+                                Text(
+                                  "${item["quantidade"]}",
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.add_circle_outline,
+                                    color: AppColors.primary,
+                                  ),
+                                  onPressed: () {
+                                    cart.increaseQuantity(index);
+                                  },
+                                ),
+                              ],
                             ),
+                            // Preço embaixo
                             Text(
-                              "${item["quantidade"]}",
+                              "R\$ ${(item["preco"] * item["quantidade"]).toStringAsFixed(2)}",
                               style: const TextStyle(
-                                  color: AppColors.white, fontSize: 16),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add_circle_outline,
-                                  color: AppColors.primary),
-                              onPressed: () {
-                                setState(() {
-                                  item["quantidade"]++;
-                                });
-                              },
+                                color: AppColors.primary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
-
-                        // Subtotal
-                        Text(
-                          "R\$ ${(item["preco"] * item["quantidade"]).toStringAsFixed(2)}",
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        const SizedBox(width: 10),
+                        // Botão remover
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.redAccent,
                           ),
-                        )
+                          onPressed: () {
+                            cart.removeItem(index);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "${item["nome"]} removido do carrinho",
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   );
                 },
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Campo para CEP
+            // Campo CEP
             TextField(
               controller: cepController,
               keyboardType: TextInputType.number,
@@ -119,30 +175,42 @@ class _CarrinhoState extends State<Carrinho> {
               decoration: InputDecoration(
                 labelText: "Digite seu CEP",
                 labelStyle: const TextStyle(color: AppColors.white),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: AppColors.white),
+                suffixIcon: IconButton(
+                  onPressed: () => buscarCep(context),
+                  icon: const Icon(Icons.search, color: AppColors.primary),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: AppColors.primary),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.white),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.primary),
                 ),
               ),
             ),
-
+            if (cart.endereco.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              Text(
+                "Endereço: ${cart.endereco}",
+                style: const TextStyle(color: AppColors.white, fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                cart.taxaEntrega == 0
+                    ? "Entrega gratuita!"
+                    : "Taxa de entrega: R\$ ${cart.taxaEntrega}",
+                style: const TextStyle(color: AppColors.primary, fontSize: 16),
+              ),
+            ],
             const SizedBox(height: 25),
-
-            // Total
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   "Total:",
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(color: AppColors.white, fontSize: 20),
                 ),
                 Text(
-                  "R\$ ${total.toStringAsFixed(2)}",
+                  "R\$ ${cart.totalFinal.toStringAsFixed(2)}",
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 22,
@@ -151,10 +219,8 @@ class _CarrinhoState extends State<Carrinho> {
                 ),
               ],
             ),
-
             const SizedBox(height: 30),
-
-            // Botão confirmar
+            // Botão confirmar pedido
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -163,7 +229,7 @@ class _CarrinhoState extends State<Carrinho> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 onPressed: () {
-                  Navigator.pushNamed(context, "/confirmacao");
+                  Navigator.pushNamed(context, '/confirmacao');
                 },
                 child: const Text(
                   "Confirmar Pedido",
@@ -174,10 +240,13 @@ class _CarrinhoState extends State<Carrinho> {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomNav(
+        currentIndex: 1,
+      ), // ← ADICIONADO
     );
   }
 }

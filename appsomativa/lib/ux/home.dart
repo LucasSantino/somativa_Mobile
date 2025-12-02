@@ -1,97 +1,155 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../_core/widgets/custom_appbar.dart';
+import '../_core/widgets/custom_bottom_nav.dart';
 import '../_core/constants/app_colors.dart';
+import '../_core/providers/cart_provider.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(title: "Início"),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Bem-vindo!",
-              style: TextStyle(
-                fontSize: 26,
-                color: AppColors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    final List<Map<String, dynamic>> cardapioItems = [
+      {
+        "nome": "Hambúrguer Artesanal",
+        "descricao": "Pão brioche, carne 180g e queijo cheddar.",
+        "preco": 24.90,
+        "icone": Icons.lunch_dining,
+      },
+      {
+        "nome": "Pizza Calabresa",
+        "descricao": "Molho especial, queijo e calabresa premium.",
+        "preco": 39.90,
+        "icone": Icons.local_pizza,
+      },
+      {
+        "nome": "Suco Natural",
+        "descricao": "Laranja, limão ou abacaxi.",
+        "preco": 8.00,
+        "icone": Icons.local_drink,
+      },
+      {
+        "nome": "Açaí 500ml",
+        "descricao": "Acompanhado de granola e banana.",
+        "preco": 17.00,
+        "icone": Icons.icecream,
+      },
+    ];
 
-            const SizedBox(height: 10),
+    return WillPopScope(
+      onWillPop: () async {
+        // Impede que o usuário volte para a tela de login
+        return false;
+      },
+      child: Scaffold(
+        // AppBar sem botão de voltar
+        appBar: const CustomAppBar(title: "Cardápio", canGoBack: false),
 
-            Text(
-              "Escolha uma opção para começar:",
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.white,
-              ),
-            ),
+        // Bottom navigation
+        bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
 
-            const SizedBox(height: 30),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ListView.builder(
+            itemCount: cardapioItems.length,
+            itemBuilder: (context, index) {
+              final item = cardapioItems[index];
 
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _buildHomeCard(
-                    icon: Icons.restaurant_menu,
-                    title: "Cardápio",
-                    context: context,
-                    route: "/cardapio",
-                  ),
-
-                  _buildHomeCard(
-                    icon: Icons.shopping_cart,
-                    title: "Pedidos",
-                    context: context,
-                    route: "/carrinho", // 🔥 atualizado
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHomeCard({
-    required IconData icon,
-    required String title,
-    required BuildContext context,
-    required String route,
-  }) {
-    return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, route),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.backgroundDark,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.primary, width: 1.5),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 40, color: AppColors.primary),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w600,
+              return Card(
+                color: const Color.fromARGB(75, 15, 15, 15),
+                margin: const EdgeInsets.only(bottom: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: AppColors.primary),
                 ),
-              ),
-            ],
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(item["icone"], color: AppColors.primary, size: 35),
+                      const SizedBox(width: 20),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item["nome"],
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: AppColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            Text(
+                              item["descricao"],
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.white.withOpacity(0.7),
+                              ),
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "R\$ ${item["preco"].toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    final cart = Provider.of<CartProvider>(
+                                      context,
+                                      listen: false,
+                                    );
+
+                                    cart.addItem({
+                                      "nome": item["nome"],
+                                      "preco": item["preco"],
+                                      "quantidade": 1,
+                                    });
+
+                                    Navigator.pushNamed(context, "/carrinho");
+                                  },
+                                  icon: Icon(
+                                    Icons.add,
+                                    color: AppColors.backgroundDark,
+                                  ),
+                                  label: Text(
+                                    "Pedir",
+                                    style: TextStyle(
+                                      color: AppColors.backgroundDark,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.yellow,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
