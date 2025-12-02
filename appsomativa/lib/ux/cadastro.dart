@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../_core/constants/app_colors.dart';
+import '../services/api_service.dart';
 
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
@@ -9,8 +10,46 @@ class Cadastro extends StatefulWidget {
 }
 
 class _CadastroState extends State<Cadastro> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
   final double fieldWidth = 0.85;
+
+  void cadastrarUser() async {
+    final username = usernameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Preencha todos os campos")));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await ApiService.cadastro(username, email, password);
+
+      if (response.containsKey('id')) {
+        // Cadastro bem-sucedido, redirecionar para login
+        Navigator.pushReplacementNamed(context, '/login');
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(response.toString())));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao conectar ao servidor: $e")),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,75 +71,58 @@ class _CadastroState extends State<Cadastro> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // LOGO DENTRO DO CARD
                   Image.asset(
                     "assets/images/MangeEats_logo.png",
                     width: 280,
                     height: 280,
                   ),
-
                   const SizedBox(height: 20),
-
-                  // CAMPO NOME
                   SizedBox(
                     width: width,
                     child: TextField(
+                      controller: usernameController,
                       style: const TextStyle(color: AppColors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.person,
-                          color: AppColors.white,
-                        ),
-                        labelText: "Nome Completo",
-                        labelStyle: const TextStyle(color: AppColors.white),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.person, color: AppColors.white),
+                        labelText: "Nome de usuário",
+                        labelStyle: TextStyle(color: AppColors.white),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: AppColors.white),
-                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: AppColors.white),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: AppColors.primary,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: AppColors.primary),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // CAMPO EMAIL
                   SizedBox(
                     width: width,
                     child: TextField(
+                      controller: emailController,
                       style: const TextStyle(color: AppColors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.email,
-                          color: AppColors.white,
-                        ),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.email, color: AppColors.white),
                         labelText: "E-mail",
-                        labelStyle: const TextStyle(color: AppColors.white),
+                        labelStyle: TextStyle(color: AppColors.white),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: AppColors.white),
-                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: AppColors.white),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: AppColors.primary,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: AppColors.primary),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // CAMPO SENHA
                   SizedBox(
                     width: width,
                     child: TextField(
+                      controller: passwordController,
                       obscureText: _obscurePassword,
                       style: const TextStyle(color: AppColors.white),
                       decoration: InputDecoration(
@@ -136,14 +158,11 @@ class _CadastroState extends State<Cadastro> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 30),
-
-                  // BOTÃO CADASTRAR
                   SizedBox(
                     width: width,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: _isLoading ? null : cadastrarUser,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -151,20 +170,22 @@ class _CadastroState extends State<Cadastro> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                      child: const Text(
-                        "Cadastrar",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child:
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.black,
+                              )
+                              : const Text(
+                                "Cadastrar",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                     ),
                   ),
-
                   const SizedBox(height: 15),
-
-                  // BOTÃO JÁ TENHO CONTA
                   TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/login');
