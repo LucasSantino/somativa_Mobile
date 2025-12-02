@@ -54,7 +54,7 @@ class Home extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: ListView.builder(
             itemCount:
-                cardapioItems.length + 1, // +1 para o texto de boas-vindas
+                cardapioItems.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
                 // TEXTO DE BOAS-VINDAS
