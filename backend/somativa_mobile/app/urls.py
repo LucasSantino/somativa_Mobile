@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     ProdutoListView, UserCreateView, LoginView,
-    PedidoCreateView, AdicionarItemView, FinalizarPedidoView
+    PedidoCreateView, AdicionarItemView, PedidoUsuarioListView ,FinalizarPedidoView
 )
 
 urlpatterns = [
@@ -11,4 +11,6 @@ urlpatterns = [
     path('pedidos/', PedidoCreateView.as_view(), name='criar-pedido'),
     path('pedidos/adicionar-item/', AdicionarItemView.as_view(), name='adicionar-item'),
     path('pedidos/<int:pk>/finalizar/', FinalizarPedidoView.as_view(), name='finalizar-pedido'),
+    path('pedidos/usuario/<int:user_id>/', PedidoUsuarioListView.as_view(), name='pedidos-usuario'),
+
 ]

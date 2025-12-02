@@ -36,11 +36,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    # LOGIN POR EMAIL
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return self.username
+        return self.email  # agora mostra email no lugar do username
 
 
 # Produto do cardápio
@@ -63,7 +64,7 @@ class Pedido(models.Model):
         return sum(item.subtotal() for item in self.itens.all())
 
     def __str__(self):
-        return f"Pedido #{self.id} - {self.user.username}"
+        return f"Pedido #{self.id} - {self.user.email}"
 
 # Item do pedido
 class ItemPedido(models.Model):
