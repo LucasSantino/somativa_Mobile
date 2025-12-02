@@ -18,11 +18,58 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-51csq$3d4od=g=3@j*vhw#0^06%2^-%n2j)cmz%-et_7x@924z'
 DEBUG = True
-ALLOWED_HOSTS = []
 
-# CORS
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ORIGIN_ALLOW_ALL = True
+# ALLOWED_HOSTS para desenvolvimento
+ALLOWED_HOSTS = [
+    '10.0.2.2',      # Emulador Android
+    'localhost',      # Localhost
+    '127.0.0.1',      # Loopback
+    '192.168.1.100',  # Seu IP local (substitua pelo seu)
+    '192.168.1.101',  # Outro IP possível
+    '*',              # Para desenvolvimento apenas
+]
+
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS = True  # Para desenvolvimento
+CORS_ALLOW_CREDENTIALS = True
+
+# Opcional: especificar origens permitidas
+CORS_ALLOWED_ORIGINS = [
+    "http://10.0.2.2:8000",
+    "http://10.0.2.2",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://192.168.1.100:8000",  # Seu IP local
+]
+
+# Headers e métodos permitidos
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Para CSRF em desenvolvimento
+CSRF_TRUSTED_ORIGINS = [
+    "http://10.0.2.2:8000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -43,7 +90,7 @@ AUTH_USER_MODEL = 'app.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -87,13 +134,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'pt-br'  # Alterado para português do Brasil
+TIME_ZONE = 'America/Sao_Paulo'  # Alterado para fuso horário do Brasil
 USE_I18N = True
 USE_TZ = True
 
 # Static and media files
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Para produção
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -107,5 +156,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ),
 }
