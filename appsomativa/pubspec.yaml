@@ -40,6 +40,7 @@ dependencies:
   flutter_svg: ^2.0.7
   flutter_launcher_icons: "^0.14.4"
   cached_network_image: ^3.2.3
+  shared_preferences: ^2.2.2 
   
 
 dev_dependencies:

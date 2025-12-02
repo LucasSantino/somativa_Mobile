@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../_core/constants/app_colors.dart';
 import '../services/api_service.dart';
+import '../_core/providers/cart_provider.dart';  // Adicione este import
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -21,9 +23,9 @@ class _LoginState extends State<Login> {
     final password = passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Preencha todos os campos")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Preencha todos os campos"))
+      );
       return;
     }
 
@@ -34,11 +36,26 @@ class _LoginState extends State<Login> {
 
       if (response.containsKey('user_id')) {
         // Login bem-sucedido
+        final userId = response['user_id'];
+        
+        // Salvar o user_id no CartProvider
+        final cartProvider = Provider.of<CartProvider>(context, listen: false);
+        cartProvider.setUserId(userId);
+        
+        // Navegar para home
         Navigator.pushReplacementNamed(context, '/home');
+        
+        // Feedback
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Login realizado com sucesso!"),
+            backgroundColor: Colors.green,
+          ),
+        );
       } else if (response.containsKey('error')) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(response['error'])));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['error'].toString()))
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
